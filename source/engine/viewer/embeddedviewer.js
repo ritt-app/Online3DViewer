@@ -27,7 +27,7 @@ export class EmbeddedViewer
      * @param {EdgeSettings} [parameters.edgeSettings] Edge settings.
      * @param {EnvironmentSettings} [parameters.environmentSettings] Environment settings.
      * @param {function} [parameters.onModelLoaded] Callback that is called when the model with all
-     * of the textures is fully loaded.
+     * @param {function} [parameters.onModelLoadError] Callback that is called when error during model load is encounter.
     */
     constructor (parentElement, parameters)
     {
@@ -114,26 +114,26 @@ export class EmbeddedViewer
         }
 
         this.model = null;
-        let progressDiv = null;
+        //let progressDiv = null;
         this.modelLoader.LoadModel (inputFiles, settings, {
             onLoadStart : () => {
                 this.canvas.style.display = 'none';
-                progressDiv = document.createElement ('div');
-                progressDiv.innerHTML = 'Loading model...';
-                this.parentElement.appendChild (progressDiv);
+                //progressDiv = document.createElement ('div');
+                //progressDiv.innerHTML = 'Loading model...';
+                //this.parentElement.appendChild (progressDiv);
             },
             onFileListProgress : (current, total) => {
             },
             onFileLoadProgress : (current, total) => {
             },
             onImportStart : () => {
-                progressDiv.innerHTML = 'Importing model...';
+                //progressDiv.innerHTML = 'Importing model...';
             },
             onVisualizationStart : () => {
-                progressDiv.innerHTML = 'Visualizing model...';
+                //progressDiv.innerHTML = 'Visualizing model...';
             },
             onModelFinished : (importResult, threeObject) => {
-                this.parentElement.removeChild (progressDiv);
+                //this.parentElement.removeChild (progressDiv);
                 this.canvas.style.display = 'inherit';
                 this.viewer.SetMainObject (threeObject);
                 let boundingSphere = this.viewer.GetBoundingSphere ((meshUserData) => {
@@ -167,7 +167,13 @@ export class EmbeddedViewer
                 if (importError.message !== null) {
                     message += ' (' + importError.message + ')';
                 }
-                progressDiv.innerHTML = message;
+                //progressDiv.innerHTML = message;
+
+                // report error
+                //this.model = importResult.model;
+                if (this.parameters.onModelLoadError) {
+                    this.parameters.onModelLoadError (message);
+                }
             }
         });
     }
